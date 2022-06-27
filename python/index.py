@@ -24,3 +24,5 @@ while x > -999999999999999999999999999999999999:
 
     else:
         print("OLAMAZ! Sayınız üçe tam bölünemiyor.")
+
+        #deneme
