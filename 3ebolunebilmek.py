@@ -1,3 +1,4 @@
+print("Sayınız üçe bölünebiliyor mu? Hadi hesaplayalım.")
 while True:
     try:
         x = int(input("Bir sayı giriniz: "))
