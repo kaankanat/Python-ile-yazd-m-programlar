@@ -5,6 +5,8 @@ while True:
             print("Sayınız üçten küçük. Lütfen üçten büyük bir sayı giriniz.")
         elif x == 3:
             print("Sayınız zaten üç. Üçün üçe bölenildiğini biliyorsundur bence :D")
+        elif x == 31:
+            print(":D")
         elif x % 3 == 0:
             print("Evet! Sayınız üçe tam bölünebiliyor.")
         elif x % 3 == 1:
