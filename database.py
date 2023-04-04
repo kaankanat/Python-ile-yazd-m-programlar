@@ -62,6 +62,7 @@ def veritabani_goruntule():
     with sqlite3.connect('database.db') as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM kisiler')
+        cursor.execute('ALTER TABLE kisiler ADD COLUMN eposta TEXT')
         kisiler = cursor.fetchall()
         if not kisiler:
             print('Veri tabanında kayıt bulunmamaktadır.')
@@ -91,7 +92,7 @@ def program():
             isim = input('İsim: ')
             yas = input('Yaş: ')
             eposta = input('E-posta: ')
-            kisi_ekle(isim, eposta, yas)
+            kisi_ekle(isim, yas, eposta)
         elif secim == '2':
             kisi_sil()
         elif secim == '3':
