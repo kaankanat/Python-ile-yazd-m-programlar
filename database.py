@@ -5,7 +5,7 @@ def kisi_ekle(isim, yas, eposta):
     with sqlite3.connect('database.db') as conn:
         cursor = conn.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INT)')
-        cursor.execute('INSERT INTO kisiler (isim, yas) VALUES (?, ?)', (isim, yas))
+        cursor.execute('INSERT INTO kisiler (isim, yas) VALUES (?, ?, ?)', (isim, yas, eposta))
         conn.commit()
         print(f'{isim} adlı kişi veri tabanına eklendi.')
 
