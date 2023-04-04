@@ -23,17 +23,24 @@ def kisi_sil(isim):
             print(f'{isim} adlı kişi veri tabanından silindi.')
 
 
-def kisi_guncelle(isim, yas, eposta):
-    with sqlite3.connect('database.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT COUNT(*) FROM kisiler WHERE isim = ?', (isim,))
-        count = cursor.fetchone()[0]
-        if count == 0:
-            print(f'{isim} adlı kişi veri tabanında bulunamadı.')
-        else:
-            cursor.execute('UPDATE kisiler SET yas = ?, email = ? WHERE isim = ?', (yas, eposta, isim))
-            conn.commit()
-            print(f'{isim} adlı kişinin yaşı {yas}, emaili {eposta} olarak güncellendi.')
+def kisi_guncelle():
+    isim = input('Güncellenecek kişinin adını girin: ')
+    cursor.execute('SELECT * FROM kisiler WHERE isim=?', (isim,))
+    kisi = cursor.fetchone()
+    if kisi is None:
+        print("Kişi bulunamadı!")
+        return
+    print('Güncel bilgiler:')
+    print('İsim:', kisi[1])
+    print('Yaş:', kisi[2])
+    print('Eposta:', kisi[3])
+    yeni_yas = input('Yeni yaşınızı girin (mevcut: {}): '.format(kisi[2]))
+    yeni_eposta = input('Yeni e-posta adresinizi girin (mevcut: {}): '.format(kisi[3]))
+    cursor.execute('UPDATE kisiler SET yas=?, email=? WHERE isim=?', (yeni_yas, yeni_eposta, isim))
+    print('Kişi başarıyla güncellendi!')
+    baglanti.commit()
+
+
 
 def veritabani_goruntule():
     with sqlite3.connect('database.db') as conn:
