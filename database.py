@@ -1,60 +1,69 @@
-# veritabanı listesi
-database = []
+import sqlite3
+
+conn = sqlite3.connect("example.db")
+c = conn.cursor()
+
+# tablo oluşturma
+c.execute('''CREATE TABLE IF NOT EXISTS users
+             (name TEXT, email TEXT, age INT)''')
 
 while True:
-    print("\n" + "-" * 30)
-    print("Veritabanı İşlemleri".center(30))
-    print("-" * 30)
-    print("1. Ekle")
-    print("2. Güncelle")
-    print("3. Sil")
-    print("4. Görüntüle")
-    print("5. Çıkış")
+    # işlem seçimi
+    islem = input("Hangi işlemi yapmak istersiniz? (Ekle/Çıkar/Güncelle/Görüntüle/Kapat): ")
 
-    choice = input("Yapmak istediğiniz işlemi seçin: ")
+    if islem.lower() == "ekle":
+        # kullanıcı bilgileri alma
+        name = input("İsim: ")
+        email = input("E-mail: ")
+        age = int(input("Yaş: "))
 
-    if choice == "1":
-        name = input("İsim girin: ")
-        email = input("Email girin: ")
-        age = input("Yaş girin: ")
+        # kullanıcı ekleme
+        c.execute("INSERT INTO users VALUES (?, ?, ?)", (name, email, age))
+        conn.commit()
 
-        # yeni veri
-        new_data = {"isim": name, "email": email, "yaş": age}
-        database.append(new_data)
-        print("\nİşlem başarılı: Veritabanına yeni veri eklendi.")
+        print("-"*30)
 
-    elif choice == "2":
-        name = input("Güncellemek istediğiniz kişinin adını girin: ")
-        for data in database:
-            if data["isim"] == name:
-                email = input("Yeni email girin: ")
-                age = input("Yeni yaş girin: ")
-                data["email"] = email
-                data["yaş"] = age
-                print("\nİşlem başarılı: Veritabanındaki veri güncellendi.")
-                break
+    elif islem.lower() == "çıkar":
+        # kullanıcı bilgileri alma
+        name = input("Silmek istediğiniz kullanıcının ismini girin: ")
+
+        # kullanıcı silme
+        c.execute("DELETE FROM users WHERE name=?", (name,))
+        conn.commit()
+
+        print("-"*30)
+
+    elif islem.lower() == "güncelle":
+        # kullanıcı bilgileri alma
+        name = input("Güncellemek istediğiniz kullanıcının ismini girin: ")
+        new_email = input("Yeni e-mail: ")
+        new_age = int(input("Yeni yaş: "))
+
+        # kullanıcı güncelleme
+        c.execute("UPDATE users SET email=?, age=? WHERE name=?", (new_email, new_age, name))
+        conn.commit()
+
+        print("-"*30)
+
+    elif islem.lower() == "görüntüle":
+        # veri tabanındaki tüm kullanıcıları görüntüleme
+        c.execute("SELECT * FROM users")
+        rows = c.fetchall()
+
+        if rows:
+            for row in rows:
+                print(row)
         else:
-            print("\nHata: Girilen isim veritabanında bulunamadı.")
+            print("Veri tabanı şu anda boş.")
 
-    elif choice == "3":
-        name = input("Silmek istediğiniz kişinin adını girin: ")
-        for data in database:
-            if data["isim"] == name:
-                database.remove(data)
-                print("\nİşlem başarılı: Veritabanından veri silindi.")
-                break
-        else:
-            print("\nHata: Girilen isim veritabanında bulunamadı.")
+        print("-"*30)
 
-    elif choice == "4":
-        print("\nVeritabanı Listesi:")
-        print("-" * 30)
-        for data in database:
-            print("İsim: {}\nEmail: {}\nYaş: {}\n".format(data["isim"], data["email"], data["yaş"]))
-
-    elif choice == "5":
-        print("\nProgram kapatılıyor...")
+    elif islem.lower() == "kapat":
+        # veri tabanı bağlantısını kapatma
+        conn.close()
         break
 
     else:
-        print("\nHatalı seçim! Lütfen geçerli bir seçenek girin.")
+        print("Geçersiz işlem, tekrar deneyin.")
+
+        print("-"*30)
