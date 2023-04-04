@@ -44,9 +44,12 @@ def veritabani_goruntule():
         if not kisiler:
             print('Veri tabanında kayıt bulunmamaktadır.')
         else:
+            print(f"{'İsim':<20} {'Yaş':<10} {'Eposta':<30}")
+            print('-' * 60)
             for kisi in kisiler:
-                print(f'{kisi[0]:<20} {kisi[1]:<10}')
-                print('-' * 30)
+                print(f"{kisi[0]:<20} {kisi[1]:<10} {kisi[2]:<30}")
+                print('-' * 60)
+
 
 
 def cizgi_ciz():
