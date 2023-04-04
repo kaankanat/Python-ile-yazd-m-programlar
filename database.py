@@ -10,9 +10,10 @@ def kisi_ekle(isim, yas, eposta):
         print(f'{isim} adlı kişi veri tabanına eklendi.')
 
 
-def kisi_sil(isim):
+def kisi_sil():
     with sqlite3.connect('database.db') as conn:
         cursor = conn.cursor()
+        isim = input('Silinecek kişinin adını girin: ')
         cursor.execute('SELECT COUNT(*) FROM kisiler WHERE isim = ?', (isim,))
         count = cursor.fetchone()[0]
         if count == 0:
@@ -24,22 +25,23 @@ def kisi_sil(isim):
 
 
 def kisi_guncelle():
-    isim = input('Güncellenecek kişinin adını girin: ')
-    cursor.execute('SELECT * FROM kisiler WHERE isim=?', (isim,))
-    kisi = cursor.fetchone()
-    if kisi is None:
-        print("Kişi bulunamadı!")
-        return
-    print('Güncel bilgiler:')
-    print('İsim:', kisi[1])
-    print('Yaş:', kisi[2])
-    print('Eposta:', kisi[3])
-    yeni_yas = input('Yeni yaşınızı girin (mevcut: {}): '.format(kisi[2]))
-    yeni_eposta = input('Yeni e-posta adresinizi girin (mevcut: {}): '.format(kisi[3]))
-    cursor.execute('UPDATE kisiler SET yas=?, email=? WHERE isim=?', (yeni_yas, yeni_eposta, isim))
-    print('Kişi başarıyla güncellendi!')
-    baglanti.commit()
-
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        isim = input('Güncellenecek kişinin adını girin: ')
+        cursor.execute('SELECT * FROM kisiler WHERE isim=?', (isim,))
+        kisi = cursor.fetchone()
+        if kisi is None:
+            print("Kişi bulunamadı!")
+            return
+        print('Güncel bilgiler:')
+        print('İsim:', kisi[0])
+        print('Yaş:', kisi[1])
+        print('Eposta:', kisi[2])
+        yeni_yas = input('Yeni yaşınızı girin (mevcut: {}): '.format(kisi[1]))
+        yeni_eposta = input('Yeni e-posta adresinizi girin (mevcut: {}): '.format(kisi[2]))
+        cursor.execute('UPDATE kisiler SET yas=?, email=? WHERE isim=?', (yeni_yas, yeni_eposta, isim))
+        print('Kişi başarıyla güncellendi!')
+        conn.commit()
 
 
 def veritabani_goruntule():
@@ -56,8 +58,10 @@ def veritabani_goruntule():
                 print(f"{kisi[0]:<20} {kisi[1]:<10} {kisi[2]:<30}")
                 print('-' * 60)
 
+
 def cizgi_ciz():
     print('-' * 30)
+
 
 def program():
     while True:
@@ -66,28 +70,24 @@ def program():
         print('Kullanıcı Sil: 2')
         print('Kullanıcı Güncelle: 3')
         print('Veritabanını Görüntüle: 4')
-        print('Çıkış: 5')
+        print('Çıkış: q')
         cizgi_ciz()
 
-        secim = input('Yapmak istediğiniz işlemi seçin (1-5): ')
-
+        secim = input('Yapmak istediğiniz işlemi seçin: ')
         if secim == '1':
             isim = input('İsim: ')
-            yas = int(input('Yaş: '))
+            yas = input('Yaş: ')
             eposta = input('E-posta: ')
             kisi_ekle(isim, yas, eposta)
         elif secim == '2':
-            isim = input('Silmek istediğiniz kişinin adını girin: ')
-            kisi_sil(isim)
+            kisi_sil()
         elif secim == '3':
-            isim = input('Güncellemek istediğiniz kişinin adı: ')
-            yas = input('Yeni yaş: ')
-            eposta = input('Yeni eposta: ')
-            kisi_guncelle(isim, yas, eposta)
+            kisi_guncelle()
         elif secim == '4':
             veritabani_goruntule()
-        elif secim == '5':
+        elif secim == 'q':
+            print('Program sonlandırılıyor.')
             break
         else:
-            print('Geçersiz seçim.')
+            print('Geçersiz seçim. Lütfen tekrar deneyin.')
 program()
