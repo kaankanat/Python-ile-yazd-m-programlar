@@ -4,8 +4,8 @@ import sqlite3
 def kisi_ekle(isim, yas, eposta):
     with sqlite3.connect('database.db') as conn:
         cursor = conn.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INT, eposta TEXT)')
-        cursor.execute('INSERT INTO kisiler (isim, yas, eposta) VALUES (?, ?, ?)', (isim, yas, eposta))
+        cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INT, email TEXT)')
+        cursor.execute('INSERT INTO kisiler (isim, yas, email) VALUES (?, ?, ?)', (isim, yas, eposta))
         conn.commit()
         print(f'{isim} adlı kişi veri tabanına eklendi.')
 
@@ -31,7 +31,7 @@ def kisi_guncelle(isim, yas):
         if count == 0:
             print(f'{isim} adlı kişi veri tabanında bulunamadı.')
         else:
-            cursor.execute('UPDATE kisiler SET yas = ? WHERE isim = ?', (yas, isim))
+            cursor.execute('UPDATE kisiler SET yas = ? WHERE isim = ?', (yas, isim, eposta))
             conn.commit()
             print(f'{isim} adlı kişinin yaşı {yas} olarak güncellendi.')
 
