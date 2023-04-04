@@ -1,36 +1,75 @@
-def main():
-    while True:
-        print("Veri Tabanı Programı")
-        print("Veri tabanına kişi eklemek: 1")
-        print("Veri tabandan kişi silmek: 2")
-        print("Veri tabanındaki kişiyi güncellemek: 3")
-        print("Veri tabanını görüntülemek: 4")
-        print("Veri tabanından çıkmak: q")
+import sqlite3
 
-        secim = input("Yapmak istediğiniz işlemi seçin: ")
+conn = sqlite3.connect('database.db')
+c = conn.cursor()
 
-        if secim == "1":
-            isim = input("Kişinin adını girin: ")
-            yas = input("Kişinin yaşını girin: ")
-            email = input("Kişinin e-posta adresini girin: ")
-            ekle(isim, yas, email)
+def tablo_olustur():
+    c.execute('''CREATE TABLE IF NOT EXISTS kisiler
+                 (isim TEXT, yas INT, email TEXT)''')
 
-        elif secim == "2":
-            isim = input("Silinecek kişinin adını girin: ")
-            sil(isim)
+def ekle():
+    isim = input("İsim: ")
+    yas = input("Yaş: ")
+    email = input("E-posta: ")
+    c.execute("INSERT INTO kisiler (isim, yas, email) VALUES (?, ?, ?)", (isim, yas, email))
+    conn.commit()
+    print("Kişi başarıyla eklendi.")
 
-        elif secim == "3":
-            isim = input("Güncellenecek kişinin adını girin: ")
-            yeni_isim = input("Yeni adı girin (boş bırakmak için enter'a basın): ")
-            yeni_yas = input("Yeni yaşını girin (boş bırakmak için enter'a basın): ")
-            yeni_email = input("Yeni e-posta adresini girin (boş bırakmak için enter'a basın): ")
-            guncelle(isim, yeni_isim, yeni_yas, yeni_email)
+def sil():
+    isim = input("Silmek istediğiniz kişinin adını giriniz: ")
+    c.execute("SELECT * FROM kisiler WHERE isim=?", (isim,))
+    if not c.fetchall():
+        print("Bu isimde bir kişi bulunamadı.")
+        return
+    c.execute("DELETE FROM kisiler WHERE isim=?", (isim,))
+    conn.commit()
+    print("Kişi başarıyla silindi.")
 
-        elif secim == "4":
-            goruntule()
+def guncelle():
+    isim = input("Güncellemek istediğiniz kişinin adını giriniz: ")
+    c.execute("SELECT * FROM kisiler WHERE isim=?", (isim,))
+    if not c.fetchall():
+        print("Bu isimde bir kişi bulunamadı.")
+        return
+    yas = input("Yeni yaş: ")
+    email = input("Yeni e-posta: ")
+    c.execute("UPDATE kisiler SET yas=?, email=? WHERE isim=?", (yas, email, isim))
+    conn.commit()
+    print("Kişi başarıyla güncellendi.")
 
-        elif secim.lower() == "q":
-            break
+def goruntule():
+    c.execute("SELECT * FROM kisiler")
+    rows = c.fetchall()
+    if not rows:
+        print("Veri tabanı boş.")
+        return
+    for row in rows:
+        print("İsim: {}, Yaş: {}, E-posta: {}".format(row[0], row[1], row[2]))
 
-        else:
-            print("Geçersiz seçim. Lütfen tekrar deneyin.")
+def cikis():
+    conn.close()
+    print("Program sonlandırıldı.")
+    exit()
+
+tablo_olustur()
+
+while True:
+    print("\nVeri Tabanı Programı")
+    print("1- Kişi Ekle")
+    print("2- Kişi Sil")
+    print("3- Kişi Güncelle")
+    print("4- Kişileri Görüntüle")
+    print("q- Çıkış")
+    secim = input("Seçiminiz: ")
+    if secim == "1":
+        ekle()
+    elif secim == "2":
+        sil()
+    elif secim == "3":
+        guncelle()
+    elif secim == "4":
+        goruntule()
+    elif secim == "q":
+        cikis()
+    else:
+        print("Geçersiz seçim. Lütfen devam edin.")
