@@ -84,3 +84,4 @@ def program():
             break
         else:
             print('Geçersiz seçim.')
+program()
