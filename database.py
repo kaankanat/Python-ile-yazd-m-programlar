@@ -1,39 +1,74 @@
 import sqlite3
 
-# veritabanı bağlantısı oluşturma
-baglanti = sqlite3.connect('veritabani.db')
+def create_connection():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    return conn, cursor
 
-# tablo oluşturma (eğer daha önce oluşturulmadıysa)
-baglanti.execute('''CREATE TABLE IF NOT EXISTS kullanicilar
-             (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-             isim TEXT NOT NULL,
-             email TEXT NOT NULL,
-             yas INT NOT NULL);''')
+def create_table(cursor):
+    cursor.execute("""CREATE TABLE IF NOT EXISTS kisiler (
+                      id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      isim TEXT NOT NULL,
+                      email TEXT NOT NULL,
+                      yas INTEGER NOT NULL)""")
+    print("Tablo oluşturuldu")
 
-# kullanıcı seçimi
-while True:
-    secim = input("Yapmak istediğiniz işlemi seçin (ekle, güncelle, sil): ")
-    if secim.lower() not in ['ekle', 'güncelle', 'sil']:
-        print("Geçersiz işlem, tekrar deneyin.")
-    else:
-        break
+def insert_data(conn, cursor, isim, email, yas):
+    cursor.execute("INSERT INTO kisiler (isim, email, yas) VALUES (?, ?, ?)", (isim, email, yas))
+    conn.commit()
+    print(f"{isim} veritabanına eklendi")
 
-# kullanıcı bilgileri alma
-isim = input("İsim: ")
-email = input("E-posta: ")
-yas = int(input("Yaş: "))
+def update_data(conn, cursor, id, isim, email, yas):
+    cursor.execute("UPDATE kisiler SET isim=?, email=?, yas=? WHERE id=?", (isim, email, yas, id))
+    conn.commit()
+    print(f"{isim} güncellendi")
 
-# işleme göre veritabanında değişiklik yapma
-if secim.lower() == 'ekle':
-    baglanti.execute("INSERT INTO kullanicilar (isim, email, yas) VALUES (?, ?, ?);", (isim, email, yas))
-    print("Kullanıcı başarıyla eklendi.")
-elif secim.lower() == 'güncelle':
-    baglanti.execute("UPDATE kullanicilar SET email = ?, yas = ? WHERE isim = ?;", (email, yas, isim))
-    print("Kullanıcı bilgileri başarıyla güncellendi.")
-elif secim.lower() == 'sil':
-    baglanti.execute("DELETE FROM kullanicilar WHERE isim = ?;", (isim,))
-    print("Kullanıcı başarıyla silindi.")
+def delete_data(conn, cursor, id):
+    cursor.execute("DELETE FROM kisiler WHERE id=?", (id,))
+    conn.commit()
+    print(f"{id} numaralı kişi silindi")
 
-# veritabanını kaydetme ve bağlantıyı kapama
-baglanti.commit()
-baglanti.close()
+def display_data(cursor):
+    cursor.execute("SELECT * FROM kisiler")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(row)
+
+def main():
+    conn, cursor = create_connection()
+    create_table(cursor)
+    while True:
+        print("İşlem Seçin:")
+        print("1 - Kişi Ekle")
+        print("2 - Kişi Güncelle")
+        print("3 - Kişi Sil")
+        print("4 - Verileri Görüntüle")
+        print("q - Çıkış")
+        selection = input("Seçiminiz: ")
+
+        if selection == "1":
+            isim = input("İsim: ")
+            email = input("Email: ")
+            yas = input("Yaş: ")
+            insert_data(conn, cursor, isim, email, yas)
+        elif selection == "2":
+            id = input("Güncellemek istediğiniz kişinin id'si: ")
+            isim = input("Yeni isim: ")
+            email = input("Yeni email: ")
+            yas = input("Yeni yaş: ")
+            update_data(conn, cursor, id, isim, email, yas)
+        elif selection == "3":
+            id = input("Silmek istediğiniz kişinin id'si: ")
+            delete_data(conn, cursor, id)
+        elif selection == "4":
+            display_data(cursor)
+        elif selection == "q":
+            break
+        else:
+            print("Geçersiz seçim")
+
+
+    conn.close()
+
+if __name__ == "__main__":
+    main()
