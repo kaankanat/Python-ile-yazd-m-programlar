@@ -1,74 +1,54 @@
 import sqlite3
 
-def create_connection():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-    return conn, cursor
+conn = sqlite3.connect('veritabani.db')
+c = conn.cursor()
 
-def create_table(cursor):
-    cursor.execute("""CREATE TABLE IF NOT EXISTS kisiler (
-                      id INTEGER PRIMARY KEY AUTOINCREMENT,
-                      isim TEXT NOT NULL,
-                      email TEXT NOT NULL,
-                      yas INTEGER NOT NULL)""")
-    print("Tablo oluşturuldu")
+while True:
+    print("="*50)
+    print("VERİTABANI İŞLEMLERİ\n1- Ekleme\n2- Güncelleme\n3- Silme\n4- Görüntüleme\n5- Çıkış")
+    islem = input("Hangi işlemi yapmak istersiniz? ")
 
-def insert_data(conn, cursor, isim, email, yas):
-    cursor.execute("INSERT INTO kisiler (isim, email, yas) VALUES (?, ?, ?)", (isim, email, yas))
-    conn.commit()
-    print(f"{isim} veritabanına eklendi")
+    if islem == '1':
+        print("="*50)
+        ad = input("Adınız: ")
+        email = input("E-posta adresiniz: ")
+        yas = input("Yaşınız: ")
 
-def update_data(conn, cursor, id, isim, email, yas):
-    cursor.execute("UPDATE kisiler SET isim=?, email=?, yas=? WHERE id=?", (isim, email, yas, id))
-    conn.commit()
-    print(f"{isim} güncellendi")
+        c.execute("INSERT INTO kullanicilar VALUES (?, ?, ?)", (ad, email, yas))
+        conn.commit()
+        print("Kullanıcı eklendi.")
 
-def delete_data(conn, cursor, id):
-    cursor.execute("DELETE FROM kisiler WHERE id=?", (id,))
-    conn.commit()
-    print(f"{id} numaralı kişi silindi")
+    elif islem == '2':
+        print("="*50)
+        ad = input("Güncellemek istediğiniz kullanıcının adı: ")
+        email = input("E-posta adresiniz: ")
+        yas = input("Yaşınız: ")
 
-def display_data(cursor):
-    cursor.execute("SELECT * FROM kisiler")
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
+        c.execute("UPDATE kullanicilar SET email = ?, yas = ? WHERE ad = ?", (email, yas, ad))
+        conn.commit()
+        print("Kullanıcı güncellendi.")
 
-def main():
-    conn, cursor = create_connection()
-    create_table(cursor)
-    while True:
-        print("İşlem Seçin:")
-        print("1 - Kişi Ekle")
-        print("2 - Kişi Güncelle")
-        print("3 - Kişi Sil")
-        print("4 - Verileri Görüntüle")
-        print("q - Çıkış")
-        selection = input("Seçiminiz: ")
+    elif islem == '3':
+        print("="*50)
+        ad = input("Silmek istediğiniz kullanıcının adı: ")
 
-        if selection == "1":
-            isim = input("İsim: ")
-            email = input("Email: ")
-            yas = input("Yaş: ")
-            insert_data(conn, cursor, isim, email, yas)
-        elif selection == "2":
-            id = input("Güncellemek istediğiniz kişinin id'si: ")
-            isim = input("Yeni isim: ")
-            email = input("Yeni email: ")
-            yas = input("Yeni yaş: ")
-            update_data(conn, cursor, id, isim, email, yas)
-        elif selection == "3":
-            id = input("Silmek istediğiniz kişinin id'si: ")
-            delete_data(conn, cursor, id)
-        elif selection == "4":
-            display_data(cursor)
-        elif selection == "q":
-            break
-        else:
-            print("Geçersiz seçim")
+        c.execute("DELETE FROM kullanicilar WHERE ad = ?", (ad,))
+        conn.commit()
+        print("Kullanıcı silindi.")
 
+    elif islem == '4':
+        print("="*50)
+        c.execute("SELECT * FROM kullanicilar")
+        kullanici_listesi = c.fetchall()
 
-    conn.close()
+        for kullanici in kullanici_listesi:
+            print(kullanici)
 
-if __name__ == "__main__":
-    main()
+    elif islem == '5':
+        break
+
+    else:
+        print("Geçersiz işlem. Lütfen tekrar deneyin.")
+
+c.close()
+conn.close()
