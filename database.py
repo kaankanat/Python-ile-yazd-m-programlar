@@ -67,20 +67,20 @@ def program():
 
         if secim == '1':
             isim = input('İsim: ')
-            yas = input('Yaş: ')
-            kisi_ekle(isim, yas, None)
+            yas = int(input('Yaş: '))
+            eposta = input('E-posta: ')
+            kisi_ekle(isim, yas, eposta)
         elif secim == '2':
-            isim = input('Silmek istediğiniz kişinin ismi: ')
+            isim = input('Silmek istediğiniz kişinin adını girin: ')
             kisi_sil(isim)
         elif secim == '3':
-            isim = input('Güncellemek istediğiniz kişinin ismi: ')
+            isim = input('Güncellemek istediğiniz kişinin adı: ')
             yas = input('Yeni yaş: ')
-            kisi_guncelle(isim, yas)
+            eposta = input('Yeni eposta: ')
+            kisi_guncelle(isim, yas, eposta)
         elif secim == '4':
             veritabani_goruntule()
         elif secim == '5':
             break
         else:
             print('Geçersiz seçim.')
-
-program()
