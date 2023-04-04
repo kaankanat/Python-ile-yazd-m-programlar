@@ -23,7 +23,7 @@ def kisi_sil(isim):
             print(f'{isim} adlı kişi veri tabanından silindi.')
 
 
-def kisi_guncelle(isim, yas):
+def kisi_guncelle(isim, yas, eposta):
     with sqlite3.connect('database.db') as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT COUNT(*) FROM kisiler WHERE isim = ?', (isim,))
@@ -31,10 +31,9 @@ def kisi_guncelle(isim, yas):
         if count == 0:
             print(f'{isim} adlı kişi veri tabanında bulunamadı.')
         else:
-            cursor.execute('UPDATE kisiler SET yas = ? WHERE isim = ?', (yas, isim, eposta))
+            cursor.execute('UPDATE kisiler SET yas = ?, email = ? WHERE isim = ?', (yas, eposta, isim))
             conn.commit()
-            print(f'{isim} adlı kişinin yaşı {yas} olarak güncellendi.')
-
+            print(f'{isim} adlı kişinin yaşı {yas}, emaili {eposta} olarak güncellendi.')
 
 def veritabani_goruntule():
     with sqlite3.connect('database.db') as conn:
@@ -50,11 +49,8 @@ def veritabani_goruntule():
                 print(f"{kisi[0]:<20} {kisi[1]:<10} {kisi[2]:<30}")
                 print('-' * 60)
 
-
-
 def cizgi_ciz():
     print('-' * 30)
-
 
 def program():
     while True:
