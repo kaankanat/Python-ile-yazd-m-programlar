@@ -1,58 +1,74 @@
-def ekle():
-    isim = input("İsim: ")
-    yas = input("Yaş: ")
-    email = input("E-posta: ")
-    kisi_listesi.append({"isim": isim, "yas": yas, "email": email})
-    print("Kişi eklendi.")
+import sqlite3
 
-def sil():
-    isim = input("Silmek istediğiniz kişinin ismini girin: ")
-    bulundu = False
-    for kisi in kisi_listesi:
-        if kisi["isim"] == isim:
-            kisi_listesi.remove(kisi)
-            bulundu = True
-            print("Kişi silindi.")
-            break
-    if not bulundu:
-        print("Kişi bulunamadı.")
+# Veritabanına bağlan
+baglanti = sqlite3.connect('kisiler.db')
 
-def guncelle():
-    isim = input("Güncellemek istediğiniz kişinin ismini girin: ")
-    bulundu = False
-    for kisi in kisi_listesi:
-        if kisi["isim"] == isim:
-            yeni_isim = input("Yeni isim: ")
-            yeni_yas = input("Yeni yaş: ")
-            yeni_email = input("Yeni e-posta: ")
-            kisi["isim"] = yeni_isim
-            kisi["yas"] = yeni_yas
-            kisi["email"] = yeni_email
-            bulundu = True
-            print("Kişi güncellendi.")
-            break
-    if not bulundu:
-        print("Kişi bulunamadı.")
+# Veritabanı yoksa oluştur
+imlec = baglanti.cursor()
+imlec.execute('''CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INTEGER, eposta TEXT)''')
 
+# Ekleme işlemi için fonksiyon tanımla
+def ekle(isim, yas, eposta):
+    imlec.execute("INSERT INTO kisiler VALUES (?, ?, ?)", (isim, yas, eposta))
+    baglanti.commit()
+
+# Silme işlemi için fonksiyon tanımla
+def sil(isim):
+    imlec.execute("DELETE FROM kisiler WHERE isim=?", (isim,))
+    baglanti.commit()
+
+# Güncelleme işlemi için fonksiyon tanımla
+def guncelle(isim, yas, eposta):
+    imlec.execute("UPDATE kisiler SET yas=?, eposta=? WHERE isim=?", (yas, eposta, isim))
+    baglanti.commit()
+
+# Görüntüleme işlemi için fonksiyon tanımla
 def goruntule():
-    if not kisi_listesi:
-        print("Veri tabanı boş.")
-    else:
-        for kisi in kisi_listesi:
-            print("İsim: " + kisi["isim"] + ", Yaş: " + kisi["yas"] + ", E-posta: " + kisi["email"])
+    imlec.execute("SELECT * FROM kisiler")
+    kisiler = imlec.fetchall()
+    for kisi in kisiler:
+        print("İsim: " + kisi[0] + ", Yaş: " + str(kisi[1]) + ", E-posta: " + kisi[2])
 
+# Ana döngü
 while True:
-    secim = input("Veri tabanına kişi eklemek: 1\nVeri tabandan kişi silmek: 2\nVeri tabanındaki kişiyi güncellemek: 3\nVeri tabanını görüntülemek: 4\nVeri tabanından çıkmak: q\nSeçiminiz: ")
+    print("\nYapmak istediğiniz işlemi seçin:")
+    print("1- Kişi Ekle")
+    print("2- Kişi Sil")
+    print("3- Kişi Güncelle")
+    print("4- Kişileri Görüntüle")
+    print("q- Çıkış")
+
+    secim = input("Seçiminiz: ")
+
     if secim == "1":
-        ekle()
+        isim = input("İsim: ")
+        yas = int(input("Yaş: "))
+        eposta = input("E-posta: ")
+        ekle(isim, yas, eposta)
+        print("-"*40)
+
     elif secim == "2":
-        sil()
+        isim = input("Silmek istediğiniz kişinin adı: ")
+        sil(isim)
+        print("-"*40)
+
     elif secim == "3":
-        guncelle()
+        isim = input("Güncellemek istediğiniz kişinin adı: ")
+        yas = int(input("Yeni yaş: "))
+        eposta = input("Yeni e-posta: ")
+        guncelle(isim, yas, eposta)
+        print("-"*40)
+
     elif secim == "4":
         goruntule()
+        print("-"*40)
+
     elif secim == "q":
-        print("Program sonlandırıldı.")
         break
+
     else:
         print("Geçersiz seçim. Lütfen devam edin.")
+        print("-"*40)
+
+# Bağlantıyı kapat
+baglanti.close()
