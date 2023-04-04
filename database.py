@@ -1,74 +1,93 @@
 import sqlite3
 
-# Veritabanına bağlan
-baglanti = sqlite3.connect('kisiler.db')
+def veritabani_olustur():
+    conn = sqlite3.connect('kisiler.db')
+    cursor = conn.cursor()
 
-# Veritabanı yoksa oluştur
-imlec = baglanti.cursor()
-imlec.execute('''CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INTEGER, eposta TEXT)''')
+    cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (id INTEGER PRIMARY KEY AUTOINCREMENT, isim TEXT, yas INTEGER, eposta TEXT)')
 
-# Ekleme işlemi için fonksiyon tanımla
-def ekle(isim, yas, eposta):
-    imlec.execute("INSERT INTO kisiler VALUES (?, ?, ?)", (isim, yas, eposta))
-    baglanti.commit()
+    conn.commit()
+    conn.close()
 
-# Silme işlemi için fonksiyon tanımla
-def sil(isim):
-    imlec.execute("DELETE FROM kisiler WHERE isim=?", (isim,))
-    baglanti.commit()
+def kisi_ekle(isim, yas, eposta):
+    conn = sqlite3.connect('kisiler.db')
+    cursor = conn.cursor()
 
-# Güncelleme işlemi için fonksiyon tanımla
-def guncelle(isim, yas, eposta):
-    imlec.execute("UPDATE kisiler SET yas=?, eposta=? WHERE isim=?", (yas, eposta, isim))
-    baglanti.commit()
+    cursor.execute('INSERT INTO kisiler (isim, yas, eposta) VALUES (?, ?, ?)', (isim, yas, eposta))
 
-# Görüntüleme işlemi için fonksiyon tanımla
-def goruntule():
-    imlec.execute("SELECT * FROM kisiler")
-    kisiler = imlec.fetchall()
-    for kisi in kisiler:
-        print("İsim: " + kisi[0] + ", Yaş: " + str(kisi[1]) + ", E-posta: " + kisi[2])
+    conn.commit()
+    conn.close()
 
-# Ana döngü
-while True:
-    print("\nYapmak istediğiniz işlemi seçin:")
-    print("1- Kişi Ekle")
-    print("2- Kişi Sil")
-    print("3- Kişi Güncelle")
-    print("4- Kişileri Görüntüle")
-    print("q- Çıkış")
+def kisi_sil(isim):
+    conn = sqlite3.connect('kisiler.db')
+    cursor = conn.cursor()
 
-    secim = input("Seçiminiz: ")
+    cursor.execute('DELETE FROM kisiler WHERE isim = ?', (isim,))
 
-    if secim == "1":
-        isim = input("İsim: ")
-        yas = int(input("Yaş: "))
-        eposta = input("E-posta: ")
-        ekle(isim, yas, eposta)
-        print("-"*40)
+    conn.commit()
+    conn.close()
 
-    elif secim == "2":
-        isim = input("Silmek istediğiniz kişinin adı: ")
-        sil(isim)
-        print("-"*40)
+def kisi_guncelle(eski_isim, yeni_isim, yeni_yas, yeni_eposta):
+    conn = sqlite3.connect('kisiler.db')
+    cursor = conn.cursor()
 
-    elif secim == "3":
-        isim = input("Güncellemek istediğiniz kişinin adı: ")
-        yas = int(input("Yeni yaş: "))
-        eposta = input("Yeni e-posta: ")
-        guncelle(isim, yas, eposta)
-        print("-"*40)
+    cursor.execute('UPDATE kisiler SET isim = ?, yas = ?, eposta = ? WHERE isim = ?', (yeni_isim, yeni_yas, yeni_eposta, eski_isim))
 
-    elif secim == "4":
-        goruntule()
-        print("-"*40)
+    conn.commit()
+    conn.close()
 
-    elif secim == "q":
-        break
+def veritabani_goruntule():
+    conn = sqlite3.connect('kisiler.db')
+    cursor = conn.cursor()
 
-    else:
-        print("Geçersiz seçim. Lütfen devam edin.")
-        print("-"*40)
+    cursor.execute('SELECT * FROM kisiler')
 
-# Bağlantıyı kapat
-baglanti.close()
+    for row in cursor.fetchall():
+        print(row)
+
+    conn.close()
+
+def program():
+    while True:
+        print("Lütfen seçiminizi yapın:")
+        print("1. Veri tabanına kişi ekle")
+        print("2. Veri tabanından kişi sil")
+        print("3. Veri tabanındaki kişiyi güncelle")
+        print("4. Veri tabanını görüntüle")
+        print("q. Çıkış yap")
+        print("--------------------------")
+        secim = input("Seçiminiz: ")
+
+        if secim == "1":
+            isim = input("İsim: ")
+            yas = int(input("Yaş: "))
+            eposta = input("Eposta: ")
+            kisi_ekle(isim, yas, eposta)
+            print("Kişi başarıyla eklendi.")
+            print("--------------------------")
+        elif secim == "2":
+            isim = input("Silinecek kişinin ismi: ")
+            kisi_sil(isim)
+            print("Kişi başarıyla silindi.")
+            print("--------------------------")
+        elif secim == "3":
+            eski_isim = input("Güncellenecek kişinin eski ismi: ")
+            yeni_isim = input("Yeni isim: ")
+            yeni_yas = int(input("Yeni yaş: "))
+            yeni_eposta = input("Yeni eposta: ")
+            kisi_guncelle(eski_isim, yeni_isim, yeni_yas, yeni_eposta)
+            print("Kişi başarıyla güncellendi.")
+            print("--------------------------")
+        elif secim == "4":
+            veritabani_goruntule()
+            print("--------------------------")
+        elif secim == "q":
+            print("Programdan çıkılıyor...")
+            break
+        else:
+            print("Geçersiz seçim, lütfen tekrar deneyin.")
+            print("--------------------------")
+
+if __name__ == "__main__":
+    veritabani_olustur()
+    program()
