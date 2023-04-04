@@ -1,13 +1,28 @@
 import sqlite3
 
+with sqlite3.connect('database.db') as conn:
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS kisiler (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            isim TEXT NOT NULL,
+            yas INTEGER NOT NULL,
+            eposta TEXT
+        )
+    ''')
+
 
 def kisi_ekle(isim, yas, eposta):
     with sqlite3.connect('database.db') as conn:
         cursor = conn.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INT, email TEXT)')
-        cursor.execute('INSERT INTO kisiler (isim, yas, email) VALUES (?, ?, ?)', (isim, yas, eposta))
-        conn.commit()
-        print(f'{isim} adlı kişi veri tabanına eklendi.')
+
+        # Aynı isimde kayıt varsa ekleme
+        cursor.execute('SELECT * FROM kisiler WHERE isim = ?', (isim,))
+        if cursor.fetchone():
+            print(f"{isim} isimli kayıt zaten var, ekleme yapılamadı.")
+        else:
+            cursor.execute('INSERT INTO kisiler (isim, yas, eposta) VALUES (?, ?, ?)', (isim, yas, eposta))
+            print(f"{isim} isimli kişi veritabanına eklendi.")
 
 
 def kisi_sil():
@@ -34,15 +49,14 @@ def kisi_guncelle():
             print("Kişi bulunamadı!")
             return
         print('Güncel bilgiler:')
-        print('İsim:', kisi[0])
-        print('Yaş:', kisi[1])
-        print('Eposta:', kisi[2])
-        yeni_yas = input('Yeni yaşınızı girin (mevcut: {}): '.format(kisi[1]))
-        yeni_eposta = input('Yeni e-posta adresinizi girin (mevcut: {}): '.format(kisi[2]))
-        cursor.execute('UPDATE kisiler SET yas=?, email=? WHERE isim=?', (yeni_yas, yeni_eposta, isim))
+        print('İsim:', kisi[1])
+        print('Yaş:', kisi[2])
+        print('Eposta:', kisi[3])
+        yeni_yas = input('Yeni yaşınızı girin (mevcut: {}): '.format(kisi[2]))
+        yeni_eposta = input('Yeni e-posta adresinizi girin (mevcut: {}): '.format(kisi[3]))
+        cursor.execute('UPDATE kisiler SET yas=?, eposta=? WHERE isim=?', (yeni_yas, yeni_eposta, isim))
         print('Kişi başarıyla güncellendi!')
         conn.commit()
-
 
 def veritabani_goruntule():
     with sqlite3.connect('database.db') as conn:
@@ -55,9 +69,8 @@ def veritabani_goruntule():
             print(f"{'İsim':<20} {'Yaş':<10} {'Eposta':<30}")
             print('-' * 60)
             for kisi in kisiler:
-                print(f"{kisi[0]:<20} {kisi[1]:<10} {kisi[2]:<30}")
+                print(f"{kisi[1]:<20} {kisi[2]:<10} {kisi[3]:<30}")
                 print('-' * 60)
-
 
 def cizgi_ciz():
     print('-' * 30)
@@ -78,7 +91,7 @@ def program():
             isim = input('İsim: ')
             yas = input('Yaş: ')
             eposta = input('E-posta: ')
-            kisi_ekle(isim, yas, eposta)
+            kisi_ekle(isim, eposta, yas)
         elif secim == '2':
             kisi_sil()
         elif secim == '3':
