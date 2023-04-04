@@ -1,6 +1,5 @@
 import sqlite3
 
-
 def veritabani_olustur():
     conn = sqlite3.connect('kisiler.db')
     cursor = conn.cursor()
@@ -97,3 +96,9 @@ def program():
         else:
             print("Geçersiz seçim, lütfen tekrar deneyin.")
             print("--------------------------")
+def main():
+    veritabani_olustur()
+    program()
+
+if __name__ == "__main__":
+    main()
