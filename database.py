@@ -85,9 +85,5 @@ def program():
             print("Program sonlandırılıyor...")
             break
         else:
-            print("Hatalı seçim! Lütfen tekrar deneyin.")
+            print("Geçersiz seçim. Lütfen tekrar deneyin.")
             print("--------------------------")
-
-if __name__ == "__main__":
-    veritabani_olustur()
-    program()
