@@ -1,104 +1,86 @@
 import sqlite3
 
-def veritabani_olustur():
-    conn = sqlite3.connect('kisiler.db')
-    cursor = conn.cursor()
-
-    cursor.execute(
-        'CREATE TABLE IF NOT EXISTS kisiler (id INTEGER PRIMARY KEY AUTOINCREMENT, isim TEXT, yas INTEGER, eposta TEXT)')
-
-    conn.commit()
-    conn.close()
-
 
 def kisi_ekle(isim, yas, eposta):
-    conn = sqlite3.connect('kisiler.db')
-    cursor = conn.cursor()
-
-    cursor.execute('INSERT INTO kisiler (isim, yas, eposta) VALUES (?, ?, ?)', (isim, yas, eposta))
-
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (isim TEXT, yas INT)')
+        cursor.execute('INSERT INTO kisiler (isim, yas) VALUES (?, ?)', (isim, yas))
+        conn.commit()
+        print(f'{isim} adlı kişi veri tabanına eklendi.')
 
 
 def kisi_sil(isim):
-    conn = sqlite3.connect('kisiler.db')
-    cursor = conn.cursor()
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM kisiler WHERE isim = ?', (isim,))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            print(f'{isim} adlı kişi veri tabanında bulunamadı.')
+        else:
+            cursor.execute('DELETE FROM kisiler WHERE isim = ?', (isim,))
+            conn.commit()
+            print(f'{isim} adlı kişi veri tabanından silindi.')
 
-    cursor.execute('DELETE FROM kisiler WHERE isim = ?', (isim,))
 
-    conn.commit()
-    conn.close()
-
-
-def kisi_guncelle(eski_isim, yeni_isim, yeni_yas, yeni_eposta):
-    conn = sqlite3.connect('kisiler.db')
-    cursor = conn.cursor()
-
-    cursor.execute('UPDATE kisiler SET isim = ?, yas = ?, eposta = ? WHERE isim = ?',
-                   (yeni_isim, yeni_yas, yeni_eposta, eski_isim))
-
-    conn.commit()
-    conn.close()
+def kisi_guncelle(isim, yas):
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM kisiler WHERE isim = ?', (isim,))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            print(f'{isim} adlı kişi veri tabanında bulunamadı.')
+        else:
+            cursor.execute('UPDATE kisiler SET yas = ? WHERE isim = ?', (yas, isim))
+            conn.commit()
+            print(f'{isim} adlı kişinin yaşı {yas} olarak güncellendi.')
 
 
 def veritabani_goruntule():
-    conn = sqlite3.connect('kisiler.db')
-    cursor = conn.cursor()
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM kisiler')
+        kisiler = cursor.fetchall()
+        if not kisiler:
+            print('Veri tabanında kayıt bulunmamaktadır.')
+        else:
+            for kisi in kisiler:
+                print(f'{kisi[0]:<20} {kisi[1]:<10}')
+                print('-' * 30)
 
-    cursor.execute('SELECT * FROM kisiler')
 
-    for row in cursor.fetchall():
-        print(row)
-
-    conn.close()
+def cizgi_ciz():
+    print('-' * 30)
 
 
 def program():
-    veritabani_olustur()
-
     while True:
-        print("Lütfen seçiminizi yapın:")
-        print("1. Veri tabanına kişi ekle")
-        print("2. Veri tabanından kişi sil")
-        print("3. Veri tabanındaki kişiyi güncelle")
-        print("4. Veri tabanını görüntüle")
-        print("q. Çıkış yap")
-        print("--------------------------")
-        secim = input("Seçiminiz: ")
+        cizgi_ciz()
+        print('Kullanıcı Ekle: 1')
+        print('Kullanıcı Sil: 2')
+        print('Kullanıcı Güncelle: 3')
+        print('Veritabanını Görüntüle: 4')
+        print('Çıkış: 5')
+        cizgi_ciz()
 
-        if secim == "1":
-            isim = input("İsim: ")
-            yas = int(input("Yaş: "))
-            eposta = input("Eposta: ")
-            kisi_ekle(isim, yas, eposta)
-            print("Kişi başarıyla eklendi.")
-            print("--------------------------")
-        elif secim == "2":
-            isim = input("Silinecek kişinin ismi: ")
+        secim = input('Yapmak istediğiniz işlemi seçin (1-5): ')
+
+        if secim == '1':
+            isim = input('İsim: ')
+            yas = input('Yaş: ')
+            kisi_ekle(isim, yas, None)
+        elif secim == '2':
+            isim = input('Silmek istediğiniz kişinin ismi: ')
             kisi_sil(isim)
-            print("Kişi başarıyla silindi.")
-            print("--------------------------")
-        elif secim == "3":
-            eski_isim = input("Güncellenecek kişinin eski ismi: ")
-            yeni_isim = input("Yeni isim: ")
-            yeni_yas = int(input("Yeni yaş: "))
-            yeni_eposta = input("Yeni eposta: ")
-            kisi_guncelle(eski_isim, yeni_isim, yeni_yas, yeni_eposta)
-            print("Kişi başarıyla güncellendi.")
-            print("--------------------------")
-        elif secim == "4":
+        elif secim == '3':
+            isim = input('Güncellemek istediğiniz kişinin ismi: ')
+            yas = input('Yeni yaş: ')
+            kisi_guncelle(isim, yas)
+        elif secim == '4':
             veritabani_goruntule()
-            print("--------------------------")
-        elif secim == "q":
-            print("Program sonlandırılıyor...")
-            return  # burada fonksiyondan çıkıyoruz, bu sayede program sonlanacak
+        elif secim == '5':
+            break
         else:
-            print("Geçersiz seçim, lütfen tekrar deneyin.")
-            print("--------------------------")
-def main():
-    veritabani_olustur()
-    program()
+            print('Geçersiz seçim.')
 
-if __name__ == "__main__":
-    main()
+program()
