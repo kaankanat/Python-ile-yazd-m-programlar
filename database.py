@@ -82,10 +82,10 @@ def program():
             veritabani_goruntule()
             print("--------------------------")
         elif secim == "q":
-            print("Programdan çıkılıyor...")
+            print("Program sonlandırılıyor...")
             break
         else:
-            print("Geçersiz seçim, lütfen tekrar deneyin.")
+            print("Hatalı seçim! Lütfen tekrar deneyin.")
             print("--------------------------")
 
 if __name__ == "__main__":
