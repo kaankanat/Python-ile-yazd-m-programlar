@@ -1,13 +1,16 @@
 import sqlite3
 
+
 def veritabani_olustur():
     conn = sqlite3.connect('kisiler.db')
     cursor = conn.cursor()
 
-    cursor.execute('CREATE TABLE IF NOT EXISTS kisiler (id INTEGER PRIMARY KEY AUTOINCREMENT, isim TEXT, yas INTEGER, eposta TEXT)')
+    cursor.execute(
+        'CREATE TABLE IF NOT EXISTS kisiler (id INTEGER PRIMARY KEY AUTOINCREMENT, isim TEXT, yas INTEGER, eposta TEXT)')
 
     conn.commit()
     conn.close()
+
 
 def kisi_ekle(isim, yas, eposta):
     conn = sqlite3.connect('kisiler.db')
@@ -18,6 +21,7 @@ def kisi_ekle(isim, yas, eposta):
     conn.commit()
     conn.close()
 
+
 def kisi_sil(isim):
     conn = sqlite3.connect('kisiler.db')
     cursor = conn.cursor()
@@ -27,14 +31,17 @@ def kisi_sil(isim):
     conn.commit()
     conn.close()
 
+
 def kisi_guncelle(eski_isim, yeni_isim, yeni_yas, yeni_eposta):
     conn = sqlite3.connect('kisiler.db')
     cursor = conn.cursor()
 
-    cursor.execute('UPDATE kisiler SET isim = ?, yas = ?, eposta = ? WHERE isim = ?', (yeni_isim, yeni_yas, yeni_eposta, eski_isim))
+    cursor.execute('UPDATE kisiler SET isim = ?, yas = ?, eposta = ? WHERE isim = ?',
+                   (yeni_isim, yeni_yas, yeni_eposta, eski_isim))
 
     conn.commit()
     conn.close()
+
 
 def veritabani_goruntule():
     conn = sqlite3.connect('kisiler.db')
@@ -47,7 +54,10 @@ def veritabani_goruntule():
 
     conn.close()
 
+
 def program():
+    veritabani_olustur()
+
     while True:
         print("Lütfen seçiminizi yapın:")
         print("1. Veri tabanına kişi ekle")
@@ -87,3 +97,4 @@ def program():
         else:
             print("Geçersiz seçim. Lütfen tekrar deneyin.")
             print("--------------------------")
+
