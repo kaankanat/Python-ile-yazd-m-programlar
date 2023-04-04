@@ -93,8 +93,7 @@ def program():
             print("--------------------------")
         elif secim == "q":
             print("Program sonlandırılıyor...")
-            break
+            return  # burada fonksiyondan çıkıyoruz, bu sayede program sonlanacak
         else:
-            print("Geçersiz seçim. Lütfen tekrar deneyin.")
+            print("Geçersiz seçim, lütfen tekrar deneyin.")
             print("--------------------------")
-
